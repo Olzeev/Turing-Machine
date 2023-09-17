@@ -92,13 +92,24 @@ void convert_to_table(map <string, map<string, vector <string>>> &table, vector<
     status = statuses[0];
 }
 
+void print(L2 word, Node * cur_place){
+    Node * el = word.head;
+    while (el != NULL){
+        if (el == cur_place){
+            cout << '|' << (*el).val << "| ";
+        }
+        else cout << (*el).val << ' ';
+        el = (*el).next;
+    }
+}
+
 void emulate(L2 &word, map <string, map<string, vector <string>>> table, int mode, string &status){
     Node * cur_place = word.head;
 
     while (true){
 
         if (mode == 1){
-            print(word);
+            print(word, cur_place);
             cout << status << '\n';
             cout << "Continue - 1\n";
             int a;
