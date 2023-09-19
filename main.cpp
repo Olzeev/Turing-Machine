@@ -28,23 +28,15 @@ vector <string> convert_string(string s, string cur_let, string cur_status){
             cur = "";
         }
     }
+    if (cur == "") cur = cur_status;
     ans.push_back(cur);
     return ans;
 }
 
 void read_csv(vector <string> &input, string input_file_name){
-    ifstream in("file.csv");
+    ifstream in(input_file_name);
     string el;
-    bool first = true;
     while (getline(in, el)){
-        if (first){
-            first = false;
-            reverse(el.begin(), el.end());
-            el.pop_back();
-            el.pop_back();
-            el.pop_back();
-            reverse(el.begin(), el.end());
-        }
         input.push_back(el);
     }
 }
@@ -52,13 +44,19 @@ void read_csv(vector <string> &input, string input_file_name){
 void convert_to_table(map <string, map<string, vector <string>>> &table, vector<string> input, string &status){
     vector <string> alphabet;
     string cur_let = "";
+    bool first = true;
     for (int i = 0; i < input[0].size(); ++i){
         if (input[0][i] == ';'){
-            if (cur_let != "") alphabet.push_back(cur_let);
+            if (!first){
+                alphabet.push_back(cur_let);
+            } else{
+                first = false;
+            }
+            
             cur_let = "";
         } else cur_let.push_back(input[0][i]);
     }
-    alphabet.push_back(cur_let);
+    if (cur_let != "") alphabet.push_back(cur_let);
     
     vector <string> statuses;
     for (int i = 1; i < input.size(); ++i){
@@ -90,6 +88,8 @@ void convert_to_table(map <string, map<string, vector <string>>> &table, vector<
         table[statuses[i - 1]][alphabet[alpha_num]] = convert_string(cur, alphabet[alpha_num], statuses[i - 1]);
     }
     status = statuses[0];
+    
+    
 }
 
 void print(L2 word, Node * cur_place){
@@ -104,7 +104,7 @@ void print(L2 word, Node * cur_place){
 }
 
 void emulate(L2 &word, map <string, map<string, vector <string>>> table, int mode, string &status){
-    Node * cur_place = word.head;
+    Node * cur_place = word.head->next;
 
     while (true){
 
@@ -123,6 +123,7 @@ void emulate(L2 &word, map <string, map<string, vector <string>>> table, int mod
         vector <string> cur_cell = table[status][letter];
         (*cur_place).val = cur_cell[0][0];
         status = cur_cell[2];
+        
         if (cur_cell[1] == "R") {
             if ((*cur_place).next == NULL){
                 push_back(word, 'x');
@@ -172,11 +173,14 @@ int main(int argc, char ** argv){
     
     string status;
     convert_to_table(table, input, status);
+    
 
     string word;
     cin >> word;
     L2 word_list;
+    push_back(word_list, 'x');
     for (char el : word) push_back(word_list, el);
+    push_back(word_list, 'x');
     emulate(word_list, table, mode, status);
     string output = "";
     Node * cur = word_list.head;
